@@ -1,0 +1,229 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello TaskController!{% endblock %}
+
+{% block body %}
+
+<!-- MAIN -->
+<div class="fade-in">
+     <!-- Page header -->
+  <div class="page-header mb-4">
+    <div>
+      <h1 class="section-title">Mes tâches</h1>
+      <p class="section-sub" id="task-count">Chargement...</p>
+    </div>
+    <a class="btn-accent" href="{{ path('app_task') }}">
+        <i class="bi bi-plus-lg"></i> Nouvelle tâche
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-number purple" id="stat-total">{{ countTotal }}</div>
+        <div class="stat-label"><i class="bi bi-list-check"></i> Total</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-number green" id="stat-done">{{ countEnd}}</div>
+        <div class="stat-label"><i class="bi bi-check-circle"></i> Terminées</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-number yellow" id="stat-pending">
+            {{ countProgress}}
+        </div>
+        <div class="stat-label"><i class="bi bi-hourglass-split"></i> En cours</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-number red" id="stat-late">  {{ countUrgence }}</div>
+        <div class="stat-label"><i class="bi bi-alarm"></i>Urgentes</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Task list -->
+    <div class="col-lg-8">
+
+      <!-- Search -->
+      <div class="search-bar">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" class="input-dark" placeholder="Rechercher une tâche..." oninput="filterTasks(this.value)"/>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-tabs">
+        <a class="btn filter-tab " href="{{path('app_task') }}" >Toutes</a>
+        <a class="btn filter-tab "  href="{{path('app_task', {status: 'En cours'}) }}">En cours</a>
+        <a class="btn filter-tab" href="{{path('app_task', {status: 'Terminée'}) }}">Terminées</a>
+        <a class="btn filter-tab" href="{{path('app_task', {status: 'Partagées'}) }}">Partagées</a>
+        <a class="btn btn-danger filter-tab " href="{{path('app_task', {status: 'Urgence'}) }}">Urgentes</a>
+      </div>
+
+      <!-- List -->
+     
+   {% for task in task %}
+<div class="taskly-card d-flex justify-content-between align-items-center mb-3">
+
+    <div class="d-flex align-items-center gap-3">
+        <input type="checkbox" class="form-check-input">
+
+        <div>
+            <div class="task-title">{{ task.name }}</div>
+            <div class="task-date">
+                {{ task.dateDeadline|date('d/m/Y') }}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+
+        {# STATUS #}
+        <span class="
+            status-badge
+            {% if task.status == 'Terminée' %} status-done
+            {% elseif task.status == 'En cours' %} status-progress
+            {% elseif task.status == 'Urgence' %} status-urgence
+            {% else %} status-late
+            {% endif %}
+        ">
+            {{ task.status }}
+        </span>
+
+        {# ACTIONS #}
+       <div class="task_actions">
+            <a href="#"><i class="bi bi-pencil" id="action-btn"></i></a>
+            <a href="#"><i class="bi bi-share" id="action-btn"></i></a>
+            <a href="#"><i class="bi bi-trash" id="action-btn delete"></i></a>
+        </div>
+
+    </div>
+
+</div>
+{% endfor %}
+</div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+
+      <!-- Progress -->
+      <div class="card-dark mb-3">
+            <div class="card-title">
+                <i class="bi bi-pie-chart"></i> Progression globale
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                <span style="font-size:12px; color:#6b7280;">58% complété</span>
+                <span style="font-size:12px; color:#a78bfa;">7 / 12</span>
+            </div>
+            <div class="progress-dark">
+                <div class="progress-fill" style="width:58%;"></div>
+            </div>
+      </div>
+
+      <!-- Groups -->
+      <div class="card-dark mb-3">
+        <div class="card-title">
+          <i class="bi bi-collection"></i> Groupes actifs
+        </div>
+        <div class="group-item">
+          <span class="group-item-name">🗂️ Projet Symfony</span>
+          <span class="badge-tag tag-purple">4 tâches</span>
+        </div>
+        <div class="group-item">
+          <span class="group-item-name">📐 Maquettes</span>
+          <span class="badge-tag tag-blue">2 tâches</span>
+        </div>
+        <div class="group-item">
+          <span class="group-item-name">🔒 Sécurité</span>
+          <span class="badge-tag tag-red">1 tâche</span>
+        </div>
+      </div>
+
+      <!-- Deadlines -->
+      <div class="card-dark">
+        <div class="card-title">
+          <i class="bi bi-alarm" style="color:#f87171;"></i> Échéances proches
+        </div>
+        <div class="sidebar-item">
+          <span class="sidebar-label">Auth Symfony</span>
+          <span class="sidebar-value" style="color:#f87171;">Demain</span>
+        </div>
+        <div class="sidebar-item">
+          <span class="sidebar-label">Tests unitaires</span>
+          <span class="sidebar-value" style="color:#fbbf24;">3 jours</span>
+        </div>
+        <div class="sidebar-item">
+          <span class="sidebar-label">Déploiement</span>
+          <span class="sidebar-value" style="color:#34d399;">7 jours</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL — Nouvelle tâche -->
+<div class="modal-overlay" id="task-modal" onclick="closeModalOutside(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="bi bi-plus-circle"></i> Nouvelle tâche
+      </div>
+      <button class="modal-close" onclick="closeModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label-dark">Titre de la tâche</label>
+        <input type="text" class="input-dark" id="new-task-name" placeholder="Ex : Configurer Docker..."/>
+      </div>
+      <div class="col-12">
+        <label class="form-label-dark">Description</label>
+        <textarea class="input-dark" rows="2" placeholder="Détails de la tâche..."></textarea>
+      </div>
+      <div class="col-6">
+        <label class="form-label-dark">Type</label>
+        <select class="input-dark">
+          <option>Personnel</option>
+          <option>Professionnel</option>
+          <option>Urgent</option>
+        </select>
+      </div>
+      <div class="col-6">
+        <label class="form-label-dark">Groupe</label>
+        <select class="input-dark">
+          <option>Aucun</option>
+          <option>Projet Symfony</option>
+          <option>Maquettes</option>
+          <option>Sécurité</option>
+        </select>
+      </div>
+      <div class="col-6">
+        <label class="form-label-dark">Date d'échéance</label>
+        <input type="date" class="input-dark"/>
+      </div>
+      <div class="col-6">
+        <label class="form-label-dark">Statut</label>
+        <select class="input-dark">
+          <option>En cours</option>
+          <option>Terminée</option>
+        </select>
+      </div>
+      <div class="col-12 d-flex gap-2 mt-1">
+        <button class="btn-accent" style="flex:1; justify-content:center;" onclick="addTask()">
+          <i class="bi bi-plus-lg"></i> Créer la tâche
+        </button>
+        <button class="btn-outline" onclick="closeModal()">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

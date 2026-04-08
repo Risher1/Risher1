@@ -1,0 +1,10 @@
+<div{{ attributes }}>
+    <a href="{{ link }}" class="btn btn-{{ type }}" style="{{ style }}">
+    {% if icon is defined and icon %}
+    <i class="{{ icon }}"></i>
+    {% endif %}
+    {{ text }}
+    </a>
+</div>
+
+

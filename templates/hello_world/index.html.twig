@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Hello HelloWorldController!{% endblock %}
+{% block header %}{% endblock %}
 
 {% block body %}
 <style>
@@ -10,11 +11,24 @@
 
 <div class="example-wrapper">
     <h1>Hello {{ controller_name }}! ✅</h1>
+    <h2>Bonjour {{ name  ~ " " ~ firstName }}</h2>
+      <h2>Hello {{ Utilisateur.nom }}</h2>
 
     This friendly message is coming from:
     <ul>
         <li>Your controller at <code>C:/projetfinal/todolist_webapp/src/Controller/HelloWorldController.php</code></li>
         <li>Your template at <code>C:/projetfinal/todolist_webapp/templates/hello_world/index.html.twig</code></li>
     </ul>
+    <a href="" class="btn btn-success">Bootstrap is Aviable</a></br>
+    <div class="mt-3">
+        <twig:BootstrapButton 
+        type="warning"
+        text="BouttonComponent" 
+        link="#"
+        outlined="true"
+        style=""
+        />
+    </div>
 </div>
+
 {% endblock %}

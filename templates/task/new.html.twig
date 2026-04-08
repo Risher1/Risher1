@@ -1,0 +1,53 @@
+{# templates/task/new.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    {# On utilise une classe de carte simple au lieu de la modale #}
+    <div class="card-dark p-4 mx-auto" style="max-width: 600px;">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="section-title">
+                <i class="bi bi-plus-circle text-purple"></i> Nouvelle tâche
+            </h1>
+            <a href="{{ path('app_task') }}" class="modal-close">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+
+        {{ form_start(taskForm) }}
+        
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label-dark">Titre de la tâche</label>
+                {{ form_widget(taskForm.name, {'attr': {'class': 'input-dark', 'placeholder': 'Ex : Configurer Docker...'}}) }}
+            </div>
+
+            <div class="col-12">
+                <label class="form-label-dark">Description</label>
+                {{ form_widget(taskForm.details, {'attr': {'class': 'input-dark', 'rows': '3', 'placeholder': 'Détails de la tâche...'}}) }}
+            </div>
+
+            <div class="col-6">
+                <label class="form-label-dark">Date d'échéance</label>
+                {{ form_widget(taskForm.dateDeadline, {'attr': {'class': 'input-dark'}}) }}
+            </div>
+
+            <div class="col-6">
+                <label class="form-label-dark">Statut</label>
+                {{ form_widget(taskForm.status, {'attr': {'class': 'input-dark'}}) }}
+            </div>
+
+            <div class="col-12 d-flex gap-2 mt-4">
+                <button type="submit" class="btn-accent w-100 py-2">
+                    <i class="bi bi-plus-lg"></i> Créer la tâche
+                </button>
+                <a href="{{ path('app_task') }}" class="btn-outline text-decoration-none ">Annuler</a>
+            </div>
+        </div>
+
+        {{ form_rest(taskForm) }}
+        {{ form_end(taskForm) }}
+    </div>
+</div>
+{% endblock %}
