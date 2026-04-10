@@ -29,23 +29,23 @@ class TaskCreateFormType extends AbstractType
         $builder
             ->add('name', TextType::class)
             ->add('details', TextareaType::class)
-            ->add('dateCreation', DateType::class)
             ->add('dateDeadline', DateType::class, ['widget' => 'single_text'])
             ->add('status', ChoiceType::class,[
-                'choices' => ['En cours' => 'en_cours', 'Terminée'=>'terminée', 'Urgence'=> 'Urgente']
+                'choices' => ['En cours' => 'En cours', 'Terminée'=>'Terminée', 'Urgence'=> 'Urgence']
             ])
             //  Gérer la table typetask liée à la table task :
             ->add('taskType', EntityType::class, [
                 'class' => TaskType::class,
-                'choice_label' => 'Type', 
+                'choice_label' => 'type', 
                 'placeholder' => 'Choisir un type...'
-            ]);
-
-              /*->add('name', EntityType::class, [
-                'class' => TaskGroup::class,
-                'choice_label' => 'Type', 
-                'placeholder' => 'Choisir un type...',
-            ]);*/
+            ])
+           ->add('taskGroup', EntityType::class, [
+            'class' => TaskGroup::class,
+            'choice_label' => 'name', 
+            'placeholder' => 'Choisir un groupe...',
+            'required' => false, // facultatif si nullable
+            ])
+        ;
       
     }
 

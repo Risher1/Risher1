@@ -10,19 +10,21 @@ class TaskGroup
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column (name: 'taskgroup_id')]
+    #[ORM\Column(name: 'taskgroup_id')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'taskgroup_name',length: 255)]
+    #[ORM\Column(name: 'taskgroup_name', length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(name: 'taskgroup_description',length: 255)]
+
+    #[ORM\Column(name: 'taskgroup_description', length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'taskgroup_status',length: 255)]
+ 
+    #[ORM\Column(name: 'taskgroup_status', length: 255, nullable: true)]
     private ?string $status = null;
 
-    #[ORM\Column(name: 'taskgroup_archivedTask')]
+    #[ORM\Column(name: 'taskgroup_archivedTask', nullable: true)]
     private ?bool $archivedTask = null;
 
     public function getId(): ?int

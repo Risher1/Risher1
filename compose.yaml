@@ -1,30 +1,28 @@
 version: "3.9"
 
 services:
-  ###> doctrine/doctrine-bundle ###
   database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_DB: "app"
+      POSTGRES_PASSWORD: "!ChangeMe!"
+      POSTGRES_USER: "app"
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
+      test: ["CMD", "pg_isready", "-d", "app", "-U", "app"]
       timeout: 5s
       retries: 5
       start_period: 60s
     volumes:
       - database_data:/var/lib/postgresql/data:rw
-  ###< doctrine/doctrine-bundle ###
 
-  # ✅ Service application Symfony / PHP
   app:
-    image: php:8.2-cli
+    image: php:8.4-cli
     container_name: todolist_webapp-app
     working_dir: /app
     volumes:
       - .:/app
-    command: php -S 0.0.0.0:8000 -t public
+    command: >
+      sh -c "apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo_pgsql && php bin/console doctrine:fixtures:load --no-interaction && php -S 0.0.0.0:8000 -t public"
     ports:
       - "8000:8000"
     depends_on:
@@ -32,6 +30,4 @@ services:
         condition: service_healthy
 
 volumes:
-  ###> doctrine/doctrine-bundle ###
   database_data:
-  ###< doctrine/doctrine-bundle ###

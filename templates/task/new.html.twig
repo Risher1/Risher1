@@ -10,7 +10,7 @@
             <h1 class="section-title">
                 <i class="bi bi-plus-circle text-purple"></i> Nouvelle tâche
             </h1>
-            <a href="{{ path('app_task') }}" class="modal-close">
+            <a href="{{ path('app_task_new') }}" class="modal-close">
                 <i class="bi bi-x-lg"></i>
             </a>
         </div>
@@ -29,6 +29,16 @@
             </div>
 
             <div class="col-6">
+                <label class="form-label-dark">Type</label>
+                {{ form_widget(taskForm.taskType, {'attr': {'class': 'input-dark', 'placeholder': 'Choisir un type...'}}) }}
+            </div>
+
+             <div class="col-6">
+                <label class="form-label-dark">Groupe</label>
+                {{ form_widget(taskForm.taskGroup, {'attr': {'class': 'input-dark', 'placeholder': 'Choisir un groupe de tache...'}}) }}
+            </div>
+
+            <div class="col-6">
                 <label class="form-label-dark">Date d'échéance</label>
                 {{ form_widget(taskForm.dateDeadline, {'attr': {'class': 'input-dark'}}) }}
             </div>
@@ -38,7 +48,7 @@
                 {{ form_widget(taskForm.status, {'attr': {'class': 'input-dark'}}) }}
             </div>
 
-            <div class="col-12 d-flex gap-2 mt-4">
+            <div class="col- d-flex gap-2 mt-4">
                 <button type="submit" class="btn-accent w-100 py-2">
                     <i class="bi bi-plus-lg"></i> Créer la tâche
                 </button>

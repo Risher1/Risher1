@@ -15,9 +15,16 @@ class Task
     #[ORM\Column(name: 'task_id', type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'tasks', targetEntity: TaskType::class)]
+    // Relation avec TaskType : On place l'attribut juste au-dessus de la variable correspondante
+    #[ORM\ManyToOne(targetEntity: TaskType::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(name: 'tasktype_id', referencedColumnName: 'tasktype_id', nullable: true)]
     private ?TaskType $tasktype = null;
+
+    // Relation avec TaskGroup 
+    #[ORM\ManyToOne(targetEntity: TaskGroup::class, inversedBy: 'tasks')]
+    #[ORM\JoinColumn(name: 'taskgroup_id', referencedColumnName: 'taskgroup_id', nullable: true)]
+    private ?TaskGroup $taskgroup = null;
+  
 
     #[ORM\Column(name: 'task_name', length: 255)]
     private ?string $name = null;
@@ -47,6 +54,17 @@ class Task
     public function setTaskType(?TaskType $taskType): static
     {
         $this->tasktype = $taskType;
+        return $this;
+    }
+    // Getter et setter pour taskgroup
+    public function getTaskGroup(): ?TaskGroup
+    {
+        return $this->taskgroup;
+    }
+
+    public function setTaskGroup(?TaskGroup $taskGroup): static
+    {
+        $this->taskgroup = $taskGroup;
         return $this;
     }
 

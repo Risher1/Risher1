@@ -10,7 +10,6 @@
   <div class="page-header mb-4">
     <div>
       <h1 class="section-title">Mes tâches</h1>
-      <p class="section-sub" id="task-count">Chargement...</p>
     </div>
     <a class="btn-accent" href="{{ path('app_task_new') }}">
         <i class="bi bi-plus-lg"></i> Nouvelle tâche
@@ -99,9 +98,9 @@
 
         {# ACTIONS #}
        <div class="task_actions">
-            <a href="#"><i class="bi bi-pencil" id="action-btn"></i></a>
+            <a href="{{ path('app_task_edit', {'id': task.id}) }}"><i class="bi bi-pencil" id="action-btn"></i></a>
             <a href="#"><i class="bi bi-share" id="action-btn"></i></a>
-            <a href="#"><i class="bi bi-trash" id="action-btn delete"></i></a>
+            <a href="{{ path('app_task_delete', {id: task.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')"><i class="bi bi-trash" id="action-btn delete"></i></a>
         </div>
 
     </div>
@@ -133,16 +132,16 @@
           <i class="bi bi-collection"></i> Groupes actifs
         </div>
         <div class="group-item">
-          <span class="group-item-name">🗂️ Projet Symfony</span>
-          <span class="badge-tag tag-purple">4 tâches</span>
+          <span class="group-item-name">🗂️ {{ messages[2] }}</span>
+          <span class="badge-tag tag-purple"> {{ countGroup3 }} tâches</span>
         </div>
         <div class="group-item">
-          <span class="group-item-name">📐 Maquettes</span>
-          <span class="badge-tag tag-blue">2 tâches</span>
+          <span class="group-item-name">📐 {{ messages[0] }}</span>
+          <span class="badge-tag tag-blue"> {{ countGroup1 }} tâches</span>
         </div>
         <div class="group-item">
-          <span class="group-item-name">🔒 Sécurité</span>
-          <span class="badge-tag tag-red">1 tâche</span>
+          <span class="group-item-name">🔒 {{ messages[1] }}</span>
+          <span class="badge-tag tag-red"> {{ countGroup2 }} tâches</span>
         </div>
       </div>
 
@@ -152,12 +151,10 @@
           <i class="bi bi-alarm" style="color:#f87171;"></i> Échéances proches
         </div>
         <div class="sidebar-item">
-          <span class="sidebar-label">Auth Symfony</span>
-          <span class="sidebar-value" style="color:#f87171;">Demain</span>
+          {{ messagesDeadlines|raw }}
         </div>
         <div class="sidebar-item">
-          <span class="sidebar-label">Tests unitaires</span>
-          <span class="sidebar-value" style="color:#fbbf24;">3 jours</span>
+          {{ messagesDeadlines2|raw }}
         </div>
         <div class="sidebar-item">
           <span class="sidebar-label">Déploiement</span>
@@ -226,4 +223,5 @@
     </div>
   </div>
 </div>
+
 {% endblock %}
