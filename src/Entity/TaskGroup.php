@@ -26,12 +26,18 @@ class TaskGroup
 
     #[ORM\Column(name: 'taskgroup_archivedTask', nullable: true)]
     private ?bool $archivedTask = null;
-
+    /**
+     * Getteur de l'id du groupe de tâches
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
-
+    /* Setteur de l'id du groupe de tâches
+     * @param int $id
+     * @return TaskGroup
+     */
     public function setId(int $id): static
     {
         $this->id = $id;
@@ -39,11 +45,20 @@ class TaskGroup
         return $this;
     }
 
+    /**
+     * Getteur du nom du groupe de tâches
+     * @return string|null
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
+    /**
+     * Setteur du nom du groupe de tâches
+     * @param string $name
+     * @return TaskGroup
+     */
     public function setName(string $name): static
     {
         $this->name = $name;
@@ -51,11 +66,20 @@ class TaskGroup
         return $this;
     }
 
+    /**
+     * Getteur de la description du groupe de tâches
+     * @return string|null
+     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
+    /**
+     * Setteur de la description du groupe de tâches
+     * @param string $description
+     * @return TaskGroup
+     */
     public function setDescription(string $description): static
     {
         $this->description = $description;
@@ -63,11 +87,20 @@ class TaskGroup
         return $this;
     }
 
+    /**
+     * Getteur du statut du groupe de tâches
+     * @return string|null
+     */
     public function getStatus(): ?string
     {
         return $this->status;
     }
 
+    /**
+     * Setteur du statut du groupe de tâches
+     * @param string $status
+     * @return TaskGroup
+     */
     public function setStatus(string $status): static
     {
         $this->status = $status;
@@ -75,11 +108,20 @@ class TaskGroup
         return $this;
     }
 
+    /**
+     * Getteur de l'état d'archivage du groupe de tâches
+     * @return bool|null
+     */
     public function isArchivedTask(): ?bool
     {
         return $this->archivedTask;
     }
 
+    /**
+     * Setteur de l'état d'archivage du groupe de tâches
+     * @param bool $archivedTask
+     * @return TaskGroup
+     */
     public function setArchivedTask(bool $archivedTask): static
     {
         $this->archivedTask = $archivedTask;

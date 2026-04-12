@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - Taskly{% endblock %}
+
+{% block body %}
+    {% for flash_error in app.flashes('verify_email_error') %}
+        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+    {% endfor %}
+
+    <main>
+        <div class="auth-wrap">
+            <div class="auth-box wide fade-in">
+                <div class="auth-logo">
+                    <i class="bi bi-check2-square"></i> Taskly
+                </div>
+                <p class="auth-tagline">Créez votre compte gratuitement.</p>
+
+                {# Début du formulaire Symfony #}
+                {{ form_start(registrationForm) }}
+                
+                <div class="row g-3">
+                    {# Affichage des erreurs globales si besoin #}
+                    {{ form_errors(registrationForm) }}
+
+                    <div class="col-6">
+                        <label class="form-label-dark">Nom</label>
+                        {{ form_widget(registrationForm.firstname, {'attr': {'class': 'input-dark form-control', 'placeholder': 'Risher'}}) }}
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label-dark">Prénom</label>
+                        {{ form_widget(registrationForm.username, {'attr': {'class': 'input-dark form-control', 'placeholder': 'Aris'}}) }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label-dark">Email</label>
+                        {{ form_widget(registrationForm.email, {'attr': {'class': 'input-dark form-control', 'placeholder': 'jean.dupont@example.com'}}) }}
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label-dark">Pseudo</label>
+                        {{ form_widget(registrationForm.pseudo, {'attr': {'class': 'input-dark form-control', 'placeholder': '@pseudo'}}) }}
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label-dark">Date de naissance</label>
+                        {{ form_widget(registrationForm.birthday, {'attr': {'class': 'input-dark form-control'}}) }}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label-dark">Mot de passe</label>
+                        <div class="input-password-wrap">
+                            {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'input-dark form-control', 'placeholder': '••••••••', 'id': 'pwd1','type': 'password'}}) }}
+                            <button type="button" class="toggle-pwd" onclick="togglePwd('pwd1','ico1')">
+                                <i class="bi bi-eye" id="ico1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label-dark">Confirmer le mot de passe</label>
+                        <div class="input-password-wrap">
+                            {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'input-dark form-control', 'placeholder': '••••••••', 'id': 'pwd2','type': 'password'}}) }}
+                            <button type="button" class="toggle-pwd" onclick="togglePwd('pwd2','ico2')">
+                                <i class="bi bi-eye" id="ico2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="check-label">
+                            {{ form_widget(registrationForm.agreeTerms) }}
+                            <span>J'accepte les <a href="javascript:void(0)" class="link-accent">conditions d'utilisation</a></span>
+                        </label>
+                        {# On affiche l'erreur spécifique aux termes si elle existe #}
+                        {{ form_errors(registrationForm.agreeTerms) }}
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn-accent w-100" style="justify-content:center;">
+                            <i class="bi bi-person-plus"></i> Créer mon compte
+                        </button>
+                    </div>
+                </div>
+
+                <div class="divider">ou</div>
+
+                <p style="text-align:center; font-size:13px; color:#6b7280;">
+                    Déjà un compte ?
+                    <a href="{{ path('app_login') }}" class="link-accent">Se connecter</a>
+                </p>
+
+                {{ form_end(registrationForm) }}
+                {# Fin du formulaire Symfony #}
+            </div>
+        </div>
+    </main>
+{% endblock %}

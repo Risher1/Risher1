@@ -16,16 +16,27 @@
   </nav>
   
   <div class="header-right">
-   {% if app.request.attributes.get('_route') != 'app_task' %}
-  <twig:BootstrapButton 
+    {% if not app.user %}
+    <twig:BootstrapButton 
       type="outline"
-      text="Créer un compte" 
-      link=""
+      text="Se connecter" 
+      :link="path('app_login')" 
       style="font-size:13px; padding:7px 16px;"
       outlined="true"
-      icon="bi bi-person-plus"
-  />   
-{% endif %}
+      icon="bi bi-box-arrow-in-right"
+    />
+    {% else %}
+      <twig:BootstrapButton 
+        type="outline"
+        text="Se déconnecter" 
+        :link="path('app_logout')" 
+        style="font-size:13px; padding:7px 16px;"
+        icon="bi bi-box-arrow-right"
+        outlined="true"
+      />
+      {% endif %}
+    </div>
+      {% if app.user %}
     <div class="btn-notif">
       <i class="bi bi-bell"></i>
       <span class="notif-dot"></span>
@@ -39,4 +50,5 @@
       icon="bi bi-chevron-down"
     />
   </div>
+  {% endif %}
 </header>

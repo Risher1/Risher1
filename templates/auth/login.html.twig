@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Taskly — Connexion{% endblock %}
+
+{% block body %}
+    <main>
+    <div class="auth-wrap">
+        <div class="auth-box fade-in">   
+            <p class="auth-tagline">Gérez vos tâches, organisez votre vie.</p>
+            <form method="post">
+                {% if error %}
+                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+
+                {% if app.user %}
+                    <div class="mb-3">
+                        You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label-dark">Adresse email</label>
+                    <input type="email" value="{{ last_username }}" name="_username" id="username"  class="form-control input-dark" autocomplete="email" required autofocus placeholder="aris@example.com">
+                </div> 
+                <div class="mb-4">
+                    <div class="input-password-wrap">
+                        <label class="form-label-dark">Mot de passe</label>
+                        <input type="password" name="_password" id="password" class="form-control input-dark" autocomplete="current-password" placeholder="••••••••" required>
+                            <button type="button" class="toggle-pwd pt-4" onclick="togglePwd()">
+                                <i class="bi bi-eye" id="pwd-icon"></i>
+                            </button>
+                    </div>
+                </div>
+                <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+
+                <div class="check-row">
+                    <label class="check-label">
+                        <input type="checkbox" name="_remember_me" id="_remember_me"> Se souvenir de moi
+                    </label>
+                    <a href="#" class="link-accent" style="font-size:13px;">Mot de passe oublié ?</a>
+                </div>
+
+                <button type="submit" class="btn-accent w-100" style="justify-content:center;">
+                    <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                </button>
+
+                <div class="divider">ou</div>
+
+                <p style="text-align:center; font-size:13px; color:#6b7280;">
+                Pas encore de compte ?
+                <a href="{{ path('app_register') }}" class="link-accent">Créer un compte</a>
+                </p>
+            </form>
+        </div>
+    </div>
+    </main>
+{% endblock %}

@@ -35,8 +35,8 @@ class TaskCreateFormType extends AbstractType
             ])
             //  Gérer la table typetask liée à la table task :
             ->add('taskType', EntityType::class, [
-                'class' => TaskType::class,
-                'choice_label' => 'type', 
+                'class' => TaskType::class,// on indique la classe de l'entité liée
+                'choice_label' => 'type', // on indique le champ à afficher dans le select
                 'placeholder' => 'Choisir un type...'
             ])
            ->add('taskGroup', EntityType::class, [
