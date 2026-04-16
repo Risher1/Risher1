@@ -15,9 +15,21 @@
 
     </head>
     <body>
-         {% include '_partials/header.html.twig' %}
-         <main>
-        {% block body %}{% endblock %}
+        {% include '_partials/header.html.twig' %}
+        
+        <main class="container mt-3"> {# Ajout d'un container pour que ce soit joli #}
+            
+            {# --- BLOC D'AFFICHAGE DES MESSAGES FLASH --- #}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
         </main>
         
         {% include '_partials/footer.html.twig' %}

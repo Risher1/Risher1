@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -21,6 +23,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // On définit la date de création automatiquement à "maintenant"
         $this->dateCreateAt = new \DateTime();
         $this->roles = [];
+        $this->sharedTasks = new ArrayCollection();
     }
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -155,6 +158,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isVerified = false;
 
     /**
+     * @var Collection<int, Task>
+     */
+    #[ORM\ManyToMany(targetEntity: Task::class, mappedBy: 'sharedWith')]
+    private Collection $sharedTasks;
+
+    /**
      * Getteur de l'id de l'utilisateur
      * @return int|null
      */
@@ -249,6 +258,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Task>
+     */
+    public function getSharedTasks(): Collection
+    {
+        return $this->sharedTasks;
+    }
+
+    public function addSharedTask(Task $sharedTask): static
+    {
+        if (!$this->sharedTasks->contains($sharedTask)) {
+            $this->sharedTasks->add($sharedTask);
+            $sharedTask->addSharedWith($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSharedTask(Task $sharedTask): static
+    {
+        if ($this->sharedTasks->removeElement($sharedTask)) {
+            $sharedTask->removeSharedWith($this);
+        }
 
         return $this;
     }

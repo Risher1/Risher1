@@ -1,0 +1,7 @@
+<p>Bonjour,</p>
+<p>{{ sender.username }} vous invite à collaborer sur la tâche : <strong>{{ task.name }}</strong></p>
+
+<a href="{{ url('app_task_share', {id: task.id}) }}" 
+   style="background: #7c3aed; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+   Voir l'invitation
+</a>

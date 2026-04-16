@@ -1,16 +1,15 @@
-<!-- HEADER -->
 <header>
-  <a href="index.html" class="logo">
+  <a href="{{ path('app_task') }}" class="logo">
     <i class="bi bi-check2-square"></i> Taskly
   </a>
   <nav class="nav-links">
-    <a href="tasks.html" class="active">
+    <a href="{{ path('app_task') }}" class="active">
       <i class="bi bi-list-task"></i> Tâches
     </a>
-    <a href="dashboard.html">
+    <a href="#">
       <i class="bi bi-bar-chart-line"></i> Dashboard
     </a>
-    <a href="share.html">
+    <a href="{{ path('app_task_share_page') }}">
       <i class="bi bi-share"></i> Partage
     </a>
   </nav>
@@ -36,19 +35,19 @@
       />
       {% endif %}
     </div>
-      {% if app.user %}
+
+    {% if app.user %}
     <div class="btn-notif">
       <i class="bi bi-bell"></i>
       <span class="notif-dot"></span>
     </div>    
       <twig:BootstrapButton 
       type="outline"
-      text="Alex L." 
+      text="{{ app.user.userIdentifier }}" 
       link=""
       style="font-size:10px; color:#6b7280;"
       outlined="true"
       icon="bi bi-chevron-down"
     />
-  </div>
   {% endif %}
 </header>

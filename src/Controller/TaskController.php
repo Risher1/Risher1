@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class TaskController extends AbstractController
 {
     #[Route('/task', name: 'app_task')]
-    #[IsGranted('ROLE_USER')]
+    //#[IsGranted('ROLE_USER' , message: "Vous n'avez pas les droits pour accéder à cette page !")]
     public function index(Request $request, TaskRepository $taskRepository, EntityManagerInterface $entityManager): Response
     {    //si l'utilisateur n'est pas connecté, on le redirige vers la page de login
         if (!$this->getUser()) {
@@ -155,15 +155,21 @@ final class TaskController extends AbstractController
             $this->addFlash('success', "La tâche a été bien modifiée en base");
             return $this->redirectToRoute('app_task');
         }
-
+        
         return $this->render('task/new.html.twig', [
             'taskForm' => $form->createView(),
         ]);
     }
         // fonction de suppression d'une tâche
     #[Route('/delete/{id}', name: 'app_task_delete')]
+    #[IsGranted('delete', 'task', message: "Vous n'avez pas les droits pour supprimer cette tâche aurevoir !")] 
     public function delete(Task $task, EntityManagerInterface $entityManager): Response
     {
+        // Avant de supprimler on vérifie que l'utilisateur connecté est administrateur ou que c'est lui qui a créé la tâche 
+            if (!$this->isGranted('ROLE_ADMIN') && $task->getUser() !== $this->getUser()) {
+                $this->addFlash('danger', "Vous n'avez pas les droits pour supprimer cette tâche !");
+                return $this->redirectToRoute('app_task');
+            }
         $entityManager->remove($task);
         $entityManager->flush();
         $this->addFlash('success', "La tâche a été bien supprimée en base");

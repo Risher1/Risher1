@@ -34,11 +34,17 @@ class ResetPasswordController extends AbstractController
     /**
      * Display & process form to request a password reset.
      */
-    #[Route('', name: 'app_forgot_password_request')]
+    #[Route('', name: 'app_forgot_password_request', methods: ['GET', 'POST'])]
     public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
         $form->handleRequest($request);
+        
+        dump('submitted ?', $form->isSubmitted());
+
+        //dump($request->getMethod());
+        //dump($request->request->all());
+        //die();
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var string $email */
@@ -134,6 +140,7 @@ class ResetPasswordController extends AbstractController
         $user = $this->entityManager->getRepository(User::class)->findOneBy([
             'email' => $emailFormData,
         ]);
+         
 
         // Do not reveal whether a user account was found or not.
         if (!$user) {

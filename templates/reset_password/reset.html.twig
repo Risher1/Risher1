@@ -1,12 +1,89 @@
+{# reset.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Reset your password{% endblock %}
+{% block title %}Nouveau mot de passe{% endblock %}
 
 {% block body %}
-    <h1>Reset your password</h1>
+<main style="flex:1; display:flex; align-items:center; justify-content:center; padding:2rem 0; min-height:calc(100vh - 62px - 70px);">
+    <div style="background-color:#11141f; border:1px solid #1e2338; border-radius:14px; padding:2.5rem; width:100%; max-width:420px;" class="fade-in">
 
-    {{ form_start(resetForm) }}
-        {{ form_row(resetForm.plainPassword) }}
-        <button class="btn btn-primary">Reset password</button>
-    {{ form_end(resetForm) }}
+        {# Logo #}
+        <div style="font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:#a78bfa; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-check2-square"></i> Taskly
+        </div>
+        <p style="font-size:13px; color:#6b7280; margin-bottom:2rem;">
+            Choisissez un nouveau mot de passe sécurisé.
+        </p>
+
+        {# Flash erreurs (optionnel mais recommandé) #}
+        {% for flash_error in app.flashes('reset_password_error') %}
+            <div style="background-color:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:10px; padding:12px 16px; margin-bottom:1.5rem; display:flex; align-items:center; gap:10px; font-size:13px; color:#f87171;">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ flash_error }}
+            </div>
+        {% endfor %}
+
+        {{ form_start(resetForm) }}
+
+            {# Champ 1 : Nouveau mot de passe #}
+            <div style="margin-bottom:1.25rem;">
+                <label style="font-size:12px; font-weight:600; color:#6b7280; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">
+                    Nouveau mot de passe
+                </label>
+                <div style="position:relative;">
+                    {{ form_widget(resetForm.plainPassword.first, {
+                        'attr': {
+                            'style': 'background-color:#0f1219; border:1px solid #1e2338; border-radius:10px; color:#f1f5f9; padding:10px 44px 10px 14px; font-size:14px; width:100%; outline:none; transition:border-color 0.2s ease;',
+                            'placeholder': '••••••••',
+                            'id': 'reset-pwd-1'
+                        }
+                    }) }}
+                    <button type="button" onclick="togglePwd('reset-pwd-1', 'icon-1')" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#6b7280; cursor:pointer; font-size:15px; padding:0;">
+                        <i class="bi bi-eye" id="icon-1"></i>
+                    </button>
+                </div>
+                <div style="color:#f87171; font-size:11px; margin-top:4px;">{{ form_errors(resetForm.plainPassword.first) }}</div>
+            </div>
+
+            {# Champ 2 : Répéter le mot de passe #}
+            <div style="margin-bottom:1.5rem;">
+                <label style="font-size:12px; font-weight:600; color:#6b7280; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">
+                    Confirmez le mot de passe
+                </label>
+                <div style="position:relative;">
+                    {{ form_widget(resetForm.plainPassword.second, {
+                        'attr': {
+                            'style': 'background-color:#0f1219; border:1px solid #1e2338; border-radius:10px; color:#f1f5f9; padding:10px 44px 10px 14px; font-size:14px; width:100%; outline:none; transition:border-color 0.2s ease;',
+                            'placeholder': '••••••••',
+                            'id': 'reset-pwd-2'
+                        }
+                    }) }}
+                    <button type="button" onclick="togglePwd('reset-pwd-2', 'icon-2')" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#6b7280; cursor:pointer; font-size:15px; padding:0;">
+                        <i class="bi bi-eye" id="icon-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" style="background-color:#a78bfa; color:#0a0c12; border:none; border-radius:10px; padding:10px 20px; font-family:'Syne',sans-serif; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; width:100%; transition:all 0.2s ease;">
+                <i class="bi bi-shield-lock"></i> Réinitialiser le mot de passe
+            </button>
+
+        {{ form_end(resetForm) }}
+
+    </div>
+</main>
+
+<script>
+    function togglePwd(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    }
+</script>
 {% endblock %}

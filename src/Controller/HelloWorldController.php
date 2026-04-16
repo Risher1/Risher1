@@ -31,7 +31,7 @@ final class HelloWorldController extends AbstractController
             'User'             =>  $objUser,
         ]);
     }
-     #[Route('/send-email', name: 'app_send_email')]
+    /* #[Route('/send-email', name: 'app_send_email')]
     public function sendEmail(MessageBusInterface $bus): Response
     {
 
@@ -45,7 +45,7 @@ final class HelloWorldController extends AbstractController
         $this->addFlash('success', 'Email envoyé avec succès !');
 
         return $this->redirectToRoute('app_task');
-    }
+    }*/
 }
 
 

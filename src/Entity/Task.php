@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\TaskRepository;
 use App\Entity\TaskType;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -24,7 +26,11 @@ class Task
     #[ORM\ManyToOne(targetEntity: TaskGroup::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(name: 'taskgroup_id', referencedColumnName: 'taskgroup_id', nullable: true)]
     private ?TaskGroup $taskgroup = null;
-  
+
+    // Relation avec User : On place l'attribut juste au-dessus de la variable correspondante
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tasks')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
+    private ?User $user = null;
 
     #[ORM\Column(name: 'task_name', length: 255)]
     private ?string $name = null;
@@ -40,6 +46,20 @@ class Task
 
     #[ORM\Column(name: 'task_status', length: 255)]
     private ?string $status = null;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'sharedTasks')]
+    #[ORM\JoinTable(name: 'task_user')]
+    #[ORM\JoinColumn(name: 'task_id', referencedColumnName: 'task_id')]
+    #[ORM\InverseJoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    private Collection $sharedWith;
+
+    public function __construct()
+    {
+        $this->sharedWith = new ArrayCollection();
+    }
     /* Getter et setter pour id, tasktype, taskgroup, name, details, dateCreation, dateDeadline, status
      * Les getters permettent de récupérer les valeurs des propriétés d'une tâche
      * Les setters permettent de définir ou modifier les valeurs des propriétés d'une tâche
@@ -87,6 +107,24 @@ class Task
     public function setTaskGroup(?TaskGroup $taskGroup): static
     {
         $this->taskgroup = $taskGroup;
+        return $this;
+    }
+    /* Getter et setter pour user
+     * Permet de récupérer ou définir l'utilisateur associé à une tâche (relation ManyToOne avec User)
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+    /* Setter pour user
+     * Permet de définir l'utilisateur associé à une tâche en lui associant une instance de User
+     * @param User|null $user
+     * @return static
+     */
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
         return $this;
     }
     /**
@@ -177,6 +215,30 @@ class Task
     public function setStatus(string $status): static
     {
         $this->status = $status;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getSharedWith(): Collection
+    {
+        return $this->sharedWith;
+    }
+
+    public function addSharedWith(User $sharedWith): static
+    {
+        if (!$this->sharedWith->contains($sharedWith)) {
+            $this->sharedWith->add($sharedWith);
+        }
+
+        return $this;
+    }
+
+    public function removeSharedWith(User $sharedWith): static
+    {
+        $this->sharedWith->removeElement($sharedWith);
+
         return $this;
     }
 }

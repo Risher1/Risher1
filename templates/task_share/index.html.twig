@@ -1,0 +1,193 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello TaskShareController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<main class="fade-in">
+
+  <div class="page-header mb-4">
+    <div>
+      <h1 class="section-title">Partage de tâches</h1>
+      <p class="section-sub">Collaborez avec votre équipe</p>
+    </div>
+    <button class="btn-accent" onclick="openInviteModal()">
+      {# On vérifie si task existe pour générer le lien, sinon on met un lien vide #}
+      <a href="{{  path('app_task_invite') }}" class="nav-link">
+        <i class="bi bi-person-plus"></i> Inviter un collaborateur
+      </a>
+    </button>
+  </div>
+
+  <div class="row g-4">
+
+    <div class="col-lg-7">
+    
+      {{ form_start(shareForm, {'action': path('app_task_share', {'id': task.id})}) }}
+        <div class="card-dark mb-4" id="share-form">
+            <div class="card-title">
+                <i class="bi bi-send"></i> Partager une tâche
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label-dark">Sélectionner une tâche</label>
+                    {{ form_widget(shareForm.task, {'attr': {'class': 'input-dark'}}) }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label-dark">Collaborateur destinataire</label>
+                    <div style="position:relative;">
+                    
+                        {{ form_widget(shareForm.user, {'attr': {'class': 'input-dark'}}) }}
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label-dark">Message (optionnel)</label>
+                    {{ form_widget(shareForm.taskSharedMessage, {'attr': {'class': 'input-dark', 'rows': '3'}}) }}
+                </div>
+
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn-accent">
+                        <i class="bi bi-send"></i> Envoyer le partage
+                    </button>
+                    <button type="reset" class="btn-outline">
+                        <i class="bi bi-x"></i> Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+    {{ form_rest(shareForm) }}
+    {{ form_end(shareForm) }}
+        <div class="card-dark">
+        <div class="card-title">
+          <i class="bi bi-clock-history"></i> Historique des partages
+        </div>
+
+        <div id="share-history">
+          <div class="history-row">
+            <div class="collab-avatar" style="background:#7c3aed; color:#fff; width:34px; height:34px;">M</div>
+            <div style="flex:1;">
+              <div class="history-task-name">Config Docker</div>
+              <div class="history-meta">→ marie@email.com · 01/04/2025 · Lecture seule</div>
+            </div>
+            <span class="badge-tag tag-yellow">En attente</span>
+            <button class="task-action-btn del" title="Annuler le partage" style="opacity:1;">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+
+          <div class="history-row">
+            <div class="collab-avatar" style="background:#34d399; color:#0a0c12; width:34px; height:34px;">K</div>
+            <div style="flex:1;">
+              <div class="history-task-name">Tests unitaires</div>
+              <div class="history-meta">→ karim@email.com · 29/03/2025 · Accès complet</div>
+            </div>
+            <span class="badge-tag tag-green">Accepté</span>
+            <button class="task-action-btn del" title="Révoquer" style="opacity:1;">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+
+          <div class="history-row">
+            <div class="collab-avatar" style="background:#f87171; color:#fff; width:34px; height:34px;">S</div>
+            <div style="flex:1;">
+              <div class="history-task-name">Rédaction specs</div>
+              <div class="history-meta">→ sarah@email.com · 27/03/2025 · Lecture seule</div>
+            </div>
+            <span class="badge-tag tag-red">Refusé</span>
+            <button class="task-action-btn" title="Renvoyer" style="opacity:1;">
+              <i class="bi bi-arrow-repeat"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+
+      <div class="card-dark mb-3">
+        <div class="card-title">
+            <i class="bi bi-people"></i> Collaborateurs
+        </div>
+
+    
+      {% for user in users %}
+      {# On définit nos deux conditions de visibilité #}
+      {% set userAsIsCurrentTask = (task and user in task.sharedWith) %}
+      
+      {# On vérifie s'il a reçu AU MOINS une tâche (la relation dans ton entité User) #}
+      {% set haveTask = user.sharedTasks|length > 0 %}
+
+      {# CONDITION DE FILTRE : On n'affiche que s'il a au moins une tâche au total #}
+      {% if haveTask  %}
+          <div class="share-user-row">
+              
+              {# Avatar : Violet si Actif sur CETTE tâche, Jaune sinon #}
+              <div class="collab-avatar" style="background: {{ userAsIsCurrentTask ? '#7c3aed' : '#fbbf24' }}; color: #ffffff;">
+                  {{ user.username|first|upper }}
+              </div>
+              
+              <div style="flex:1;">
+                  <div class="collab-name">{{ user.username }}</div>
+                  <div class="collab-email">{{ user.email }}</div>
+              </div>
+
+              {# Badge : Actif s'il est sur cette tâche, Invité s'il est juste a une tache #}
+              {% if userAsIsCurrentTask  %}
+                  <span class="badge-tag tag-green">Actif</span>
+              {% else %}
+                  <span class="badge-tag tag-yellow">Invité</span>
+              {% endif %}
+
+              <div class="task-action-btn">
+                  <i class="bi bi-three-dots"></i>
+              </div>
+          </div>
+      {% endif %}
+  {% endfor %}
+    </div>
+        
+      <button class="btn-outline w-100 mt-3" style="justify-content:center;" onclick="openInviteModal()">
+        <a href="{{  path('app_task_invite')}}" class="nav-link">
+            <i class="bi bi-person-plus"></i> Ajouter un collaborateur
+        </a>
+      </button>
+
+        <div class="card-dark mt-3">
+      <div class="card-title">
+        <i class="bi bi-inbox" style="color:#60a5fa;"></i> Tâches reçues
+      </div>
+
+      
+      {% for taskReceived in receivedTasks|default([]) %}
+          <div class="received-card mb-3">
+            <div class="received-card-title">{{ taskReceived.title }}</div>
+            <div class="received-card-from">
+              <i class="bi bi-person" style="color:#6b7280;"></i> 
+              De : {{ taskReceived.user.email }} · {{ taskReceived.createdAt|date('d/m') }}
+            </div>
+            <div class="received-actions">
+              {# LIENS VERS LES ROUTES DE COLLABORATION #}
+              <a href="{{ path('app_task_accept', {'id': taskReceived.id}) }}" class="btn-accept" style="text-decoration:none;">
+                  ✓ Accepter
+              </a>
+              <a href="{{ path('app_task_reject', {'id': taskReceived.id}) }}" class="btn-reject" style="text-decoration:none;">
+                  ✕ Refuser
+              </a>
+            </div>
+          </div>
+      {% else %}
+          <p class="text-muted p-3">Aucune invitation en attente.</p>
+      {% endfor %}
+  </div>
+
+  </div>
+
+</main>
+{% endblock %}

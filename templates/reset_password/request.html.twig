@@ -1,22 +1,63 @@
+{# request.html.twig #}
 {% extends 'base.html.twig' %}
-
-{% block title %}Reset your password{% endblock %}
-
+{% block title %}Mot de passe oublié{% endblock %}
 {% block body %}
-    {% for flash_error in app.flashes('reset_password_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
-    <h1>Reset your password</h1>
 
-    {{ form_start(requestForm) }}
-        {{ form_row(requestForm.email) }}
-        <div>
-            <small>
-                Enter your email address, and we will send you a
-                link to reset your password.
-            </small>
+<main style="flex:1; display:flex; align-items:center; justify-content:center; padding:2rem 0; min-height:calc(100vh - 62px - 70px);">
+    <div style="background-color:#11141f; border:1px solid #1e2338; border-radius:14px; padding:2.5rem; width:100%; max-width:420px;"
+         class="fade-in">
+
+        {# Logo #}
+        <div style="font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:#a78bfa; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-check2-square"></i> Taskly
+        </div>
+        <p style="font-size:13px; color:#6b7280; margin-bottom:2rem;">
+            Réinitialisez votre mot de passe.
+        </p>
+
+        {# Flash erreur #}
+        {% for flash_error in app.flashes('reset_password_error') %}
+            <div style="background-color:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); border-radius:10px; padding:12px 16px; margin-bottom:1.5rem; display:flex; align-items:center; gap:10px; font-size:13px; color:#f87171;">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ flash_error }}
+            </div>
+        {% endfor %}
+
+      {{ form_start(requestForm, {'method': 'POST', 'action': path('app_forgot_password_request')}) }}
+
+            <div style="margin-bottom:1.25rem;">
+                <label style="font-size:12px; font-weight:600; color:#6b7280; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em;">
+                    Adresse email
+                </label>
+                {{ form_widget(requestForm.email, {
+                    'attr': {
+                        'style': 'background-color:#0f1219; border:1px solid #1e2338; border-radius:10px; color:#f1f5f9; padding:10px 14px; font-size:14px; width:100%; outline:none; transition:border-color 0.2s ease;',
+                        'placeholder': 'alex@example.com'
+                    }
+                }) }}
+            </div>
+
+            <p style="font-size:12px; color:#6b7280; margin-bottom:1.5rem; line-height:1.6;">
+                <i class="bi bi-info-circle" style="color:#a78bfa; margin-right:5px;"></i>
+                Saisissez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+            </p>
+
+            <button type="submit"
+                    style="background-color:#a78bfa; color:#0a0c12; border:none; border-radius:10px; padding:10px 20px; font-family:'Syne',sans-serif; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; width:100%; transition:all 0.2s ease;">
+                <i class="bi bi-send"></i> Envoyer le lien
+            </button>
+
+        {{ form_end(requestForm) }}
+
+        <div style="margin-top:1.5rem; text-align:center; font-size:13px; color:#6b7280;">
+            Vous vous souvenez de votre mot de passe ?
+            <a href="{{ path('app_login') }}"
+               style="color:#a78bfa; text-decoration:none; font-weight:600; margin-left:4px;">
+                Se connecter
+            </a>
         </div>
 
-        <button class="btn btn-primary">Send password reset email</button>
-    {{ form_end(requestForm) }}
+    </div>
+</main>
+
 {% endblock %}
