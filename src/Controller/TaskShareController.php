@@ -32,6 +32,7 @@ final class TaskShareController extends AbstractController
             $receivedTasks = $taskRepository->createQueryBuilder('t')
                 ->join('t.sharedWith', 'u')
                 ->where('u.id = :userId')
+                ->andWhere('t.user != :userId')
                 ->setParameter('userId', $userConnected->getId())
                 ->getQuery()
                 ->getResult();
@@ -42,11 +43,12 @@ final class TaskShareController extends AbstractController
             'users'         => $userRepository->findAll(),
             'shareForm'     => $this->createForm(TaskShareType::class)->createView(),
             'receivedTasks' => $receivedTasks,
-           'inviteForm' => $this->createForm(GuestUserType::class)->createView()
+            'inviteForm' => $this->createForm(GuestUserType::class)->createView()
         ]);
     }
 
     #[Route('/task/invite', name: 'app_task_invite')]
+    #
     public function invite(Request $request, MailerInterface $mailer): Response
     {
         $inviteForm = $this->createForm(GuestUserType::class);
@@ -78,9 +80,9 @@ final class TaskShareController extends AbstractController
     $userConnected = $this->getUser();
 
     // 1. Vérification de la connexion
-    if (!$userConnected instanceof User) {
-        $this->addFlash('danger', "Vous devez être connecté pour partager une tâche.");
-        return $this->redirectToRoute('app_login');
+    if (!$userConnected instanceof User || !$this->isGranted('ROLE_ADMIN')) {
+        $this->addFlash('danger', "Vous n'avez pas de droits pour effectuer cette action.");
+        return $this->redirectToRoute('app_task_share_page');
     }
 
     // 2. Création du formulaire de partage
@@ -116,6 +118,7 @@ final class TaskShareController extends AbstractController
                         'sender'  => $userConnected,
                         'task'    => $selectedTask,
                         'message' => $messageCustom,
+                        'recipient'   => $destinataire,
                     ]);
 
                 $mailer->send($email);
@@ -137,6 +140,7 @@ final class TaskShareController extends AbstractController
         $receivedTasks = $taskRepository->createQueryBuilder('t')
         ->join('t.sharedWith', 'u')
         ->where('u.id = :userId')
+        ->andWhere('t.user != :userId')
         ->setParameter('userId', $userConnected->getId())
         ->getQuery()
         ->getResult();
@@ -145,27 +149,56 @@ final class TaskShareController extends AbstractController
             'task'          => $task,
             'shareForm'     => $shareForm->createView(),
             'inviteForm'    => $this->createForm(GuestUserType::class)->createView(),
-            'users'         => $userRepository->findAll(),
+            'users' => $task->getSharedWith(),
             'receivedTasks' => $receivedTasks
         ]);
     }
 
+   
+    // Accepter : rien à faire en BDD, déjà dedans, on redirige juste
     #[Route('/task/accept/{id}', name: 'app_task_accept')]
-    public function acceptTask(Task $task, EntityManagerInterface $em): Response
+    public function acceptTask(Task $task): Response
     {
-        $user = $this->getUser();
-        if ($user) {
-            $task->addSharedWith($user);
-            $em->flush();
-            $this->addFlash('success', "Vous collaborez sur : " . $task->getName());
-        }
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        $this->addFlash('success', "Vous collaborez sur : " . $task->getName());
         return $this->redirectToRoute('app_task_share_page', ['id' => $task->getId()]);
     }
-
+  
+     // fonction de refus d'une tache
     #[Route('/task/reject/{id}', name: 'app_task_reject')]
-    public function rejectTask(Task $task): Response
+    public function rejectTask(Task $task, EntityManagerInterface $entityManager): Response
     {
-        $this->addFlash('info', "Refusé : " . $task->getName());
-        return $this->redirectToRoute('app_home');
+        $user = $this->getUser();
+
+        if ($user) {
+            $task->removeSharedWith($user);
+            $entityManager->flush();
+
+            $this->addFlash('info', "Vous avez décliné l'invitation pour : " . $task->getName());
+        }
+
+        return $this->redirectToRoute('app_task_share_page');
+    }
+    
+        // Focntion pour afficher l'historique de partage
+     #[Route('/task/history/{id}', name: 'app_task_history')]
+    public function showHistoryTask(Task $task): Response
+    {
+        // 1. On vérifie l'accès (Admin seulement ?)
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        // 2. On récupère la liste des collaborateurs actuels
+        $collaborators = $task->getSharedWith(); 
+
+        // 3. on prévient s'il n'y a personne
+        if ($collaborators->isEmpty()) {
+            $this->addFlash('info', "Cette tâche n'est partagée avec personne.");
+        }
+
+        // 4. On envoie les vraies données à la vue
+        return $this->render('app_task/index.html.twig', [
+            'task'  => $task,
+            'users'  => $task->getSharedWith(), 
+        ]);
     }
 }

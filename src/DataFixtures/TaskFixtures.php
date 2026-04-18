@@ -48,7 +48,7 @@ class TaskFixtures extends Fixture
         $user->setBirthday(\DateTime::createFromFormat('d/m/Y', '12/03/1998'));
         $user->setDateCreateAt(new \DateTime()); 
         $user->setPassword($this->passwordHasher->hashPassword($user, 'Qwerty123@#{}'));
-        $user->setRoles(['ROLE_USER']);
+        $user->setRoles(['ROLE_ADMIN']);
         $manager->persist($user);
          
         // 3.1 Créer d'autres utilisateurs
