@@ -98,7 +98,7 @@ class TaskFixtures extends Fixture
             $task->setDateDeadline(\DateTime::createFromFormat('d/m/Y', $deadline));
             $task->setStatus($status);
 
-            // Lier une tachen a un groupe si le groupe existe
+            // Lier une tache  a un groupe si le groupe existe
             if (isset($groups[$groupName])) {
                 $task->setTaskgroup($groups[$groupName]);
             }

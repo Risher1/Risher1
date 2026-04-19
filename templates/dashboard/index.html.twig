@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Taskly — Dashboard{% endblock %}
+
+{% block body %}
+
+  <!-- Page header -->
+  <div class="page-header mb-4">
+    <div>
+      <h1 class="section-title">Tableau de bord</h1>
+      <p class="section-sub">Vue d'ensemble de votre activité</p>
+    </div>
+    <span class="badge-tag tag-green" style="font-size:12px; padding:8px 16px;">
+      <i class="bi bi-circle-fill" style="font-size:7px;"></i> Actif
+    </span>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-number purple">{{ countTotal }}</div>
+        <div class="stat-label"><i class="bi bi-list-check"></i> Tâches totales</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-number green">{{ countEnd }}</div>
+        <div class="stat-label"><i class="bi bi-check-circle"></i> Terminées</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-number yellow">{{ countProgress }}</div>
+        <div class="stat-label"><i class="bi bi-hourglass-split"></i> En cours</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-number blue">{{ countShared }}</div>
+        <div class="stat-label"><i class="bi bi-share"></i> Partagées</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="row g-4 mb-4">
+
+    <!-- Weekly chart -->
+    <div class="col-lg-6">
+      <div class="card-dark h-100">
+        <div class="card-title">
+          <i class="bi bi-bar-chart-line"></i> Activité hebdomadaire
+        </div>
+        <p style="font-size:12px; color:#6b7280; margin-bottom:1rem; margin-top:-8px;">Tâches créées cette semaine</p>
+        <div class="mini-chart" id="weekly-chart"></div>
+      </div>
+    </div>
+
+    <!-- Group progress -->
+    <div class="col-lg-6">
+      <div class="card-dark h-100">
+        <div class="card-title">
+          <i class="bi bi-collection"></i> Progression par groupe
+        </div>
+        <p style="font-size:12px; color:#6b7280; margin-bottom:1rem; margin-top:-8px;">Avancement des groupes de tâches</p>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          {% for group in groupsProgress %}
+            {% if group.percent == 100 %}
+              {% set color = '#34d399' %}
+            {% elseif group.percent >= 50 %}
+              {% set color = '#a78bfa' %}
+            {% elseif group.percent >= 20 %}
+              {% set color = '#fbbf24' %}
+            {% else %}
+              {% set color = '#f87171' %}
+            {% endif %}
+
+            <div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                <span style="font-size:13px; color:#f1f5f9;">{{ group.name }}</span>
+                <span style="font-size:12px; color:{{ color }}; font-weight:600;">{{ group.percent }}%</span>
+              </div>
+              <div class="progress-dark">
+                <div class="progress-fill" style="width:{{ group.percent }}%; background:{{ color }};"></div>
+              </div>
+            </div>
+          {% else %}
+            <p style="font-size:13px; color:#6b7280;">Aucun groupe de tâches trouvé.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Alerts & Shared -->
+  <div class="row g-4 mb-4">
+
+    <!-- Alerts -->
+    <div class="col-lg-6">
+      <div class="card-dark">
+        <div class="card-title">
+          <i class="bi bi-alarm" style="color:#f87171;"></i> Alertes d'échéance
+        </div>
+
+        {% for alert in alerts %}
+          <div class="alert-card {{ alert.level == 'warning' ? 'warning' : '' }}">
+            {% if alert.level == 'warning' or alert.level == 'info' %}
+              <i class="bi bi-clock alert-icon"></i>
+            {% else %}
+              <i class="bi bi-exclamation-circle alert-icon"></i>
+            {% endif %}
+            <div class="alert-text">{{ alert.name }}</div>
+            <div class="alert-date">{{ alert.dateHuman }}</div>
+          </div>
+        {% else %}
+          <p style="font-size:13px; color:#6b7280; padding:8px 0;">Aucune échéance proche.</p>
+        {% endfor %}
+
+      </div>
+    </div>
+
+    <!-- Recent shared -->
+    <div class="col-lg-6">
+      <div class="card-dark">
+        <div class="card-title">
+          <i class="bi bi-share" style="color:#60a5fa;"></i> Tâches partagées récentes
+        </div>
+
+        {% for task in recentShared %}
+          {% for sharedUser in task.sharedWith %}
+            <div class="history-row">
+              <div class="collab-avatar" style="background:#7c3aed; color:#fff; width:32px; height:32px; font-size:12px;">
+                {{ sharedUser.email|first|upper }}
+              </div>
+              <div style="flex:1;">
+                <div class="history-task-name">{{ task.name }}</div>
+                <div class="history-meta">Partagé avec {{ sharedUser.email }} · {{ task.dateCreation|date('d/m') }}</div>
+              </div>
+              <span class="badge-tag tag-green">Accepté</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p style="font-size:13px; color:#6b7280; padding:8px 0;">Aucune tâche partagée.</p>
+        {% endfor %}
+
+        <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid #1e2338;">
+          <a href="{{ path('app_task_share_page') }}" class="btn-outline w-100" style="justify-content:center;">
+            <i class="bi bi-share"></i> Gérer les partages
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    const weekData = {{ weekData|json_encode|raw }};
+    const maxVal = Math.max(...weekData.map(d => d.count), 1);
+
+    document.getElementById('weekly-chart').innerHTML = weekData.map(d => {
+      const height = Math.max(4, (d.count / maxVal) * 70);
+      return `
+        <div class="bar-wrap">
+          <div class="bar ${d.highlight ? 'highlight' : ''}" style="height:${height}px;"></div>
+          <span class="bar-label">${d.day}</span>
+        </div>`;
+    }).join('');
+  </script>
+{% endblock %}

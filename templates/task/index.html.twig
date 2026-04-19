@@ -53,8 +53,21 @@
 
       <!-- Search -->
       <div class="search-bar">
-        <i class="bi bi-search search-icon"></i>
-        <input type="text" class="input-dark" placeholder="Rechercher une tâche..." oninput="filterTasks(this.value)"/>
+        <form action="{{ path('app_task') }}" method="GET" class="search-bar">
+          <input
+            type="text"
+            name="q"
+            class="input-dark"
+            placeholder="Rechercher une tâche..."
+            value="{{ app.request.query.get('q') }}"
+          />
+          {% if app.request.query.get('status') %}
+            <input type="hidden" name="status" value="{{ app.request.query.get('status') }}"/>
+          {% endif %}
+          <button type="submit" class="btn-accent" style="border-radius: 0 8px 8px 0; margin:0;">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
       </div>
 
       <!-- Filters -->
@@ -62,7 +75,6 @@
         <a class="btn filter-tab " href="{{path('app_task') }}" >Toutes</a>
         <a class="btn filter-tab "  href="{{path('app_task', {status: 'En cours'}) }}">En cours</a>
         <a class="btn filter-tab" href="{{path('app_task', {status: 'Terminée'}) }}">Terminées</a>
-        <a class="btn filter-tab" href="{{path('app_task', {status: 'Partagées'}) }}">Partagées</a>
         <a class="btn btn-danger filter-tab " href="{{path('app_task', {status: 'Urgence'}) }}">Urgentes</a>
       </div>
 
@@ -131,18 +143,33 @@
         <div class="card-title">
           <i class="bi bi-collection"></i> Groupes actifs
         </div>
-        <div class="group-item">
-          <span class="group-item-name">🗂️ {{ messages[2] }}</span>
-          <span class="badge-tag tag-purple"> {{ countGroup3 }} tâches</span>
-        </div>
-        <div class="group-item">
-          <span class="group-item-name">📐 {{ messages[0] }}</span>
-          <span class="badge-tag tag-blue"> {{ countGroup1 }} tâches</span>
-        </div>
-        <div class="group-item">
-          <span class="group-item-name">🔒 {{ messages[1] }}</span>
-          <span class="badge-tag tag-red"> {{ countGroup2 }} tâches</span>
-        </div>
+        <div class="group-stats">
+              {% for g in allGroups %}
+                  {# On vérifie si c'est le groupe Sécurité #}
+                  {% if g.name == 'Sécurité' %}
+                      <div class="group-item">
+                          <span class="group-item-name">🔒 {{ g.name }}</span>
+                          <span class="badge-tag tag-red">{{ g.tasks|length }} tâches</span>
+                      </div>
+                  {% endif %}
+                  
+                  {#  On vérifie si c'est le groupe Maquette #}
+                  {% if g.name == 'Maquettes UI/UX' %}
+                      <div class="group-item">
+                          <span class="group-item-name">🎨 {{ g.name }}</span>
+                          <span class="badge-tag tag-blue"> {{ g.tasks|length }} tâches</span>
+                      </div>
+                  {% endif %}
+
+                  {#  On vérifie si c'est le groupe Projet symfony #}
+                  {% if g.name == 'Projet Symfony' %}
+                      <div class="group-item">
+                          <span class="group-item-name">📐 {{ g.name }}</span>
+                          <span class="badge-tag tag-purple"> {{ g.tasks|length }} tâches</span>
+                      </div>
+                  {% endif %}
+              {% endfor %}
+          </div>
       </div>
 
       <!-- Deadlines -->

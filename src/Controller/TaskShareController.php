@@ -8,6 +8,7 @@ use App\Form\GuestUserType;
 use App\Form\TaskShareType;
 use App\Repository\TaskRepository;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -47,10 +48,16 @@ final class TaskShareController extends AbstractController
         ]);
     }
 
+
+
     #[Route('/task/invite', name: 'app_task_invite')]
-    #
-    public function invite(Request $request, MailerInterface $mailer): Response
+    public function invite(Request $request, MailerInterface $mailer, UserRepository $userConnected): Response
     {
+         // 1. Vérification de la connexion
+        if (!$userConnected instanceof User || !$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('danger', "Vous n'avez pas de droits pour effectuer cette action.");
+            return $this->redirectToRoute('app_task_share_page');
+        }
         $inviteForm = $this->createForm(GuestUserType::class);
         $inviteForm->handleRequest($request);
 
@@ -75,65 +82,66 @@ final class TaskShareController extends AbstractController
         ]);
     }
 
+
    #[Route('/task/share/{id}', name: 'app_task_share')]
     public function sharedTaskUser(Task $task, Request $request, UserRepository $userRepository, TaskRepository $taskRepository, EntityManagerInterface $entityManager, MailerInterface $mailer): Response { 
-    $userConnected = $this->getUser();
+     $userConnected = $this->getUser();
 
-    // 1. Vérification de la connexion
-    if (!$userConnected instanceof User || !$this->isGranted('ROLE_ADMIN')) {
-        $this->addFlash('danger', "Vous n'avez pas de droits pour effectuer cette action.");
-        return $this->redirectToRoute('app_task_share_page');
-    }
-
-    // 2. Création du formulaire de partage
-    $shareForm = $this->createForm(TaskShareType::class);
-    $shareForm->handleRequest($request);
-
-    if ($shareForm->isSubmitted() && $shareForm->isValid()) {
-        // 3. Récupération des données (tableau car data_class => null)
-        $data = $shareForm->getData();
-        
-        /** @var Task $selectedTask */
-        $selectedTask = $data['task']; // L'entité Task choisie dans le select
-        /** @var User $destinataire */
-        $destinataire = $data['user']; // L'entité User choisie dans le select
-        $messageCustom = $data['taskSharedMessage']; // Le message optionnel
-
-        if ($destinataire) {
-            try {
-                // 4. Liaison ManyToMany : On ajoute l'utilisateur à la tâche
-                $selectedTask->addSharedWith($destinataire);
-                
-                // 5. Sauvegarde en base de données
-                $entityManager->persist($selectedTask);
-                $entityManager->flush();
-
-                // 6. Préparation et envoi de l'email
-                $email = (new TemplatedEmail())
-                    ->from('hello@example.com') 
-                    ->to($destinataire->getEmail())
-                    ->subject('Collaboration sur la tâche : ' . $selectedTask->getName())
-                    ->htmlTemplate('task_share/share.html.twig')
-                    ->context([
-                        'sender'  => $userConnected,
-                        'task'    => $selectedTask,
-                        'message' => $messageCustom,
-                        'recipient'   => $destinataire,
-                    ]);
-
-                $mailer->send($email);
-
-                $this->addFlash('success', "La tâche '" . $selectedTask->getName() . "' a été partagée avec succès !");
-            } catch (\Exception $e) {
-                $this->addFlash('danger', "Erreur lors du partage : " . $e->getMessage());
-            }
-        } else {
-            $this->addFlash('warning', "Veuillez sélectionner un collaborateur valide.");
+        // 1. Vérification de la connexion
+        if (!$userConnected instanceof User || !$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('danger', "Vous n'avez pas de droits pour effectuer cette action.");
+            return $this->redirectToRoute('app_task_share_page');
         }
-    
-        // Redirection vers la page de partage (on garde l'ID de la tâche actuelle)
-        return $this->redirectToRoute('app_task_share_page', ['id' => $task->getId()]);
-    }
+
+        // 2. Création du formulaire de partage
+        $shareForm = $this->createForm(TaskShareType::class);
+        $shareForm->handleRequest($request);
+
+        if ($shareForm->isSubmitted() && $shareForm->isValid()) {
+            // 3. Récupération des données (tableau car data_class => null)
+            $data = $shareForm->getData();
+            
+            /** @var Task $selectedTask */
+            $selectedTask = $data['task']; // L'entité Task choisie dans le select
+            /** @var User $destinataire */
+            $destinataire = $data['user']; // L'entité User choisie dans le select
+            $messageCustom = $data['taskSharedMessage']; // Le message optionnel
+
+            if ($destinataire) {
+                try {
+                    // 4. Liaison ManyToMany : On ajoute l'utilisateur à la tâche
+                    $selectedTask->addSharedWith($destinataire);
+                    
+                    // 5. Sauvegarde en base de données
+                    $entityManager->persist($selectedTask);
+                    $entityManager->flush();
+
+                    // 6. Préparation et envoi de l'email
+                    $email = (new TemplatedEmail())
+                        ->from('hello@example.com') 
+                        ->to($destinataire->getEmail())
+                        ->subject('Collaboration sur la tâche : ' . $selectedTask->getName())
+                        ->htmlTemplate('task_share/share.html.twig')
+                        ->context([
+                            'sender'  => $userConnected,
+                            'task'    => $selectedTask,
+                            'message' => $messageCustom,
+                            'recipient'   => $destinataire,
+                        ]);
+
+                    $mailer->send($email);
+
+                    $this->addFlash('success', "La tâche '" . $selectedTask->getName() . "' a été partagée avec succès !");
+                } catch (\Exception $e) {
+                    $this->addFlash('danger', "Erreur lors du partage : " . $e->getMessage());
+                }
+            } else {
+                $this->addFlash('warning', "Veuillez sélectionner un collaborateur valide.");
+            }
+        
+            // Redirection vers la page de connexion pour plus de sécurité
+            return $this->redirectToRoute('app_login', ['id' => $task->getId()]);
+        }
 
         // 7. Si le formulaire n'est pas valide ou juste affiché 
         // On récupère les tâches reçues pour ne pas casser l'affichage de la vue
@@ -155,7 +163,7 @@ final class TaskShareController extends AbstractController
     }
 
    
-    // Accepter : rien à faire en BDD, déjà dedans, on redirige juste
+    //Fonction pour  Accepter  une tache: rien à faire en BDD, déjà dedans, on redirige juste
     #[Route('/task/accept/{id}', name: 'app_task_accept')]
     public function acceptTask(Task $task): Response
     {
