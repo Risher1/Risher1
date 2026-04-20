@@ -134,19 +134,22 @@ final class TaskController extends AbstractController
 
 
     // fonction de suppression d'une tâche
-    #[Route('/delete/{id}', name: 'app_task_delete')]
-    #[IsGranted('delete', 'task', message: "Vous n'avez pas les droits pour supprimer cette tâche aurevoir !")] 
+    #[Route('/delete/{id}', name: 'app_task_delete', methods: ['GET', 'POST'])]
     public function delete(Task $task, EntityManagerInterface $entityManager): Response
     {
-        // Avant de supprimler on vérifie que l'utilisateur connecté est administrateur ou que c'est lui qui a créé la tâche 
+        // Sécurité
         if (!$this->isGranted('ROLE_ADMIN') && $task->getUser() !== $this->getUser()) {
-            $this->addFlash('danger', "Vous n'avez pas les droits pour supprimer cette tâche !");
-            return $this->redirectToRoute('app_task');
+            $this->addFlash('danger', "Vous n'avez pas les droits !");
+            return $this->redirectToRoute('app_task'); 
         }
+
         $entityManager->remove($task);
         $entityManager->flush();
-        $this->addFlash('success', "La tâche a été bien supprimée en base");
-        return $this->redirectToRoute('app_task');
+
+        $this->addFlash('success', "La tâche a bien été supprimée.");
+
+        // C'est ici que tu rediriges vers la liste
+        return $this->redirectToRoute('app_task'); 
     }
 
 

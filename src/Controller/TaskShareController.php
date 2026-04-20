@@ -54,7 +54,7 @@ final class TaskShareController extends AbstractController
     public function invite(Request $request, MailerInterface $mailer, UserRepository $userConnected): Response
     {
          // 1. Vérification de la connexion
-        if (!$userConnected instanceof User || !$this->isGranted('ROLE_ADMIN')) {
+        if (!$this->isGranted('ROLE_ADMIN')) {
             $this->addFlash('danger', "Vous n'avez pas de droits pour effectuer cette action.");
             return $this->redirectToRoute('app_task_share_page');
         }
